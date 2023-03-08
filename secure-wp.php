@@ -15,7 +15,7 @@
  * @wordpress-plugin
  * Plugin Name:       Secure WP
  * Plugin URI:        https://jeremyrosscreative.com/secure-wp
- * Description:       Add advanced security hardening and password policies to WordPress
+ * Description:       Add security hardening and stop username enumeration with modified
  * Version:           1.0.0
  * Author:            Jeremy Ross
  * Author URI:        https://jeremyrosscreative.com
