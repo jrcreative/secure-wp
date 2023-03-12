@@ -115,12 +115,12 @@ class Secure_Wp_Public {
 	}
 
 	public function modify_lostpassword_errors($errors) {
-		if (isset($errors->errors['invalidcombo'])) {
+		if ( $errors->has_errors() ) {
 			wp_redirect('/wp-login.php?checkemail=confirm');
 			exit();
 		}
 	}
-	public function modify_lostpassword_redirect() {
+	public function modify_lostpassword_redirect($errors) {
 		return '/wp-login.php?checkemail=confirm';
 	}
 	
@@ -128,9 +128,89 @@ class Secure_Wp_Public {
 		global $wp;
 		$curr_page = add_query_arg( $wp->query_vars );
 		if ($curr_page == '/wp-login.php?checkemail=confirm') {
-			$messages = "If your information was found in our system, check your inbox for a password reset link";
+			$messages = "If your account was found, check your inbox for a password reset link";
 		}
 		
 		return $messages;
+	}
+
+	// Remove WordPress version number from RSS feed
+	public function remove_version_from_rss() {
+		return '';
+	}
+	
+	private function time_to_go($timestamp)
+	{
+	
+		// converting the mysql timestamp to php time
+		$periods = array(
+			"second",
+			"minute",
+			"hour",
+			"day",
+			"week",
+			"month",
+			"year"
+		);
+		$lengths = array(
+			"60",
+			"60",
+			"24",
+			"7",
+			"4.35",
+			"12"
+		);
+		$current_timestamp = time();
+		$difference = abs($current_timestamp - $timestamp);
+		for ($i = 0; $difference >= $lengths[$i] && $i < count($lengths) - 1; $i ++) {
+			$difference /= $lengths[$i];
+		}
+		$difference = round($difference);
+		if (isset($difference)) {
+			if ($difference != 1)
+				$periods[$i] .= "s";
+				$output = "$difference $periods[$i]";
+				return $output;
+		}
+	}
+
+	public function check_attempted_login( $user, $username, $password ) {
+		$limit_attempts = 3;
+
+		if ( get_transient( 'attempted_login' ) ) {
+			$wp_errors = new WP_Error();
+
+			$data = get_transient( 'attempted_login' );
+
+			if ( $data['tried'] >= $limit_attempts ) {
+				$until = get_option( '_transient_timeout_' . 'attempted_login' );
+				$time = $this->time_to_go( $until );
+	
+				$wp_errors->add( 'too_many_tried',  sprintf( __( '<strong>ERROR</strong>: You have reached authentication limit, you will be able to try again in %1$s.' ) , $time ) );
+			} else {
+				$wp_errors->add( 'times_tried',  sprintf( __( 'This is attempt %1$s of %2$s' ) , $data['tried'], $limit_attempts) );
+			}
+			return $wp_errors;
+		}
+	
+		return $user;
+	}
+
+	function login_failed( $username ) {
+		$limit_attempts = 20;
+		$time_to_retry = 300;
+
+		if ( get_transient( 'attempted_login' ) ) {
+			$data = get_transient( 'attempted_login' );
+			$data['tried']++;
+	
+			if ( $data['tried'] <= $limit_attempts )
+				set_transient( 'attempted_login', $data , $time_to_retry );
+		} else {
+			$data = array(
+				'tried'     => 1
+			);
+			set_transient( 'attempted_login', $data , $time_to_retry );
+		}
 	}
 }

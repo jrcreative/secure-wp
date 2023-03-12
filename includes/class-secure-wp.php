@@ -169,6 +169,13 @@ class Secure_Wp {
 	private function define_public_hooks() {
 
 		$plugin_public = new Secure_Wp_Public( $this->get_plugin_name(), $this->get_version() );
+		
+		// Hide WP Version
+		remove_action('wp_head', 'wp_generator');
+
+		// limit login attempts
+		// $this->loader->add_filter( 'authenticate', $plugin_public, 'check_attempted_login', 0, 3 );
+		// $this->loader->add_filter( 'wp_login_failed', $plugin_public, 'login_failed', 90 );
 
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
@@ -176,7 +183,7 @@ class Secure_Wp {
 		$this->loader->add_action( 'lost_password', $plugin_public, 'modify_lostpassword_errors' );
 		$this->loader->add_action( 'lostpassword_redirect', $plugin_public, 'modify_lostpassword_redirect' );
 		$this->loader->add_action( 'login_messages', $plugin_public, 'modify_login_messages' );
-
+		$this->loader->add_filter( 'the_generator', $plugin_public, 'remove_version_from_rss' );
 	}
 
 	/**
