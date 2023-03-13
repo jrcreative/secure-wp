@@ -176,6 +176,8 @@ class Secure_Wp {
 		// limit login attempts
 		// $this->loader->add_filter( 'authenticate', $plugin_public, 'check_attempted_login', 0, 3 );
 		// $this->loader->add_filter( 'wp_login_failed', $plugin_public, 'login_failed', 90 );
+		
+		$this->loader->add_filter( 'login_enqueue_scripts', $plugin_public, 'login_enqueue_style', 10 );
 
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );

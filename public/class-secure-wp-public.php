@@ -59,23 +59,6 @@ class Secure_Wp_Public {
 	 *
 	 * @since    1.0.0
 	 */
-	public function enqueue_styles() {
-
-		/**
-		 * This function is provided for demonstration purposes only.
-		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in Secure_Wp_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The Secure_Wp_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
-		 */
-
-		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/secure-wp-public.css', array(), $this->version, 'all' );
-
-	}
 
 	/**
 	 * Register the JavaScript for the public-facing side of the site.
@@ -100,6 +83,9 @@ class Secure_Wp_Public {
 
 	}
 
+	function login_enqueue_style () {
+		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/secure-wp-public.css', array(), $this->version, 'all' );
+	}
 	public function modify_login_errors($errors) {
 		$error_message = "<strong>Error:</strong> Username or Password Invalid";
 
